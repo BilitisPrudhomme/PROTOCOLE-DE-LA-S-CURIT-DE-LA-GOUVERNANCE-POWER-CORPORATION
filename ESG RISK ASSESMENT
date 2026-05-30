@@ -1,0 +1,153 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <chrono>
+#include <algorithm>
+#include <sstream>
+#include <iomanip>
+#include <ctime>
+
+// Structure représentant une discussion ou un texte capté par le script de surveillance
+struct ElementDiscussion {
+    std::string source;
+    std::string contenu;
+    std::string horodatage;
+};
+
+// Énumération des niveaux de criticité de la matrice ESG révisée
+enum class NiveauRisque { FAIBLE, MOYEN, ELEVE, CRITIQUE };
+
+// Structure de la signature de repérage générée pour la Power Corporation
+struct SignatureReperage {
+    std::string id_signature;
+    NiveauRisque score_esg;
+    bool alerte_declenchee;
+    std::vector<std::string> facteurs_declencheurs;
+};
+
+class MoteurSurveillanceESG {
+private:
+    std::vector<std::string> dictionnaire_traque;
+
+    // Fonction utilitaire pour obtenir l'heure actuelle au format ISO
+    std::string obtenirHorodatageActuel() {
+        auto maintenant = std::chrono::system_clock::now();
+        std::time_t temps_c = std::chrono::system_clock::to_time_t(maintenant);
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&temps_c), "%Y-%m-%d %H:%M:%S");
+        return ss.str();
+    }
+
+    // Convertit l'énumération de risque en texte lisible pour le rapport
+    std::string risqueEnTexte(NiveauRisque risque) {
+        switch (risque) {
+            case NiveauRisque::FAIBLE:   return "FAIBLE (Matrice A-1)";
+            case NiveauRisque::MOYEN:    return "MOYEN (Matrice B-2)";
+            case NiveauRisque::ELEVE:    return "RISQUE ÉLEVÉ DE SCANDALE (Matrice C-3)";
+            case NiveauRisque::CRITIQUE: return "CRITIQUE / IMMINENT (Matrice D-4)";
+            default:                     return "INCONNU";
+        }
+    }
+
+public:
+    MoteurSurveillanceESG() {
+        // Initialisation des marqueurs sémantiques demandés pour le repérage
+        dictionnaire_traque = {
+            "francois jacques",
+            "affaires municipales",
+            "voie de contournement",
+            "thanatologue",
+            "dissimulation des roles",
+            "opportune perennite",
+            "effacement des frontieres",
+            "pwc",
+            "bestar"
+        };
+    }
+
+    // Analyse le texte et applique la nouvelle politique de détection stricte
+    SignatureReperage analyserDiscussion(const ElementDiscussion& doc) {
+        SignatureReperage signature;
+        signature.id_signature = "ESG-PCC-CAN-2026-REG04";
+        signature.score_esg = NiveauRisque::FAIBLE;
+        signature.alerte_declenchee = false;
+
+        std::string texte_minuscule = doc.contenu;
+        std::transform(texte_minuscule.begin(), texte_minuscule.end(), texte_minuscule.begin(), ::tolower);
+
+        int correspondances = 0;
+
+        for (const auto& mot_cle : dictionnaire_traque) {
+            if (texte_minuscule.find(mot_cle) != std::string::npos) {
+                correspondances++;
+                signature.facteurs_declencheurs.push_back(mot_cle);
+            }
+        }
+
+        // Politique révisée : Les croisements sur ces axes activent directement le RISQUE ÉLEVÉ
+        if (correspondances >= 3) {
+            signature.score_esg = NiveauRisque::ELEVE;
+            signature.alerte_declenchee = true;
+        } else if (correspondances == 2) {
+            signature.score_esg = NiveauRisque::MOYEN;
+            signature.alerte_declenchee = true;
+        } else if (correspondances == 1) {
+            signature.score_esg = NiveauRisque::FAIBLE;
+        }
+
+        return signature;
+    }
+
+    // Transmet la signature révisée au protocole de conformité de Power Corporation
+    void acheminerAlertePowerCorp(const ElementDiscussion& doc, const SignatureReperage& sig) {
+        std::cout << "=================================================================\n";
+        std::cout << " PROTOCOLE DE SÉCURITÉ DE LA GOUVERNANCE - POWER CORPORATION\n";
+        std::cout << "=================================================================\n";
+        std::cout << "[ALERTE_DISCUSSION : RISK-DETECT-SEM04]\n";
+        std::cout << "HORODATAGE    : " << obtenirHorodatageActuel() << "\n";
+        std::cout << "SIGNATURE_ID  : " << sig.id_signature << "\n";
+        std::cout << "SOURCE INTERC. : " << doc.source << "\n";
+        std::cout << "VIGILANCE ESG : " << risqueEnTexte(sig.score_esg) << "\n\n";
+        
+        std::cout << "CRITÈRES DE REPÉRAGE ACTIONNÉS :\n";
+        for (const auto& declencheur : sig.facteurs_declencheurs) {
+            std::cout << "  -> [MARQUEUR ACTIVÉ] : " << declencheur << "\n";
+        }
+        
+        std::cout << "\nSOMMAIRE DU TEXTE EXTRAIT :\n";
+        std::cout << "  \"" << doc.contenu << "\"\n\n";
+        
+        std::cout << "DIRECTIVE ALGORITHMIQUE AUTOMATISÉE POUR POWER CORP :\n";
+        std::cout << "  ⚠️ ALERTE DE ZONE GRISE : Fort risque de scandale réputationnel\n";
+        std::cout << "    lié à la dissimulation des rôles (Affaires Municipales).\n";
+        std::cout << "  ⚡ ACTION PROACTIVED : ACTIVATION IMMÉDIATE DU PROTOCOLE D'ÉTANCHÉITÉ.\n";
+        std::cout << "    Verrouillage des portefeuilles et mise en quarantaine du dossier.\n";
+        std::cout << "=================================================================\n\n";
+    }
+};
+
+int main() {
+    MoteurSurveillanceESG moteur;
+
+    // Simulation de la discussion interceptée contenant les signaux ciblés
+    ElementDiscussion discussion_interceptee;
+    discussion_interceptee.source = "Flux_Regional_MRC_Granit_X";
+    discussion_interceptee.horodatage = "2026-05-30 15:14:00";
+    discussion_interceptee.contenu = 
+        "Il demeure manifeste que, par un subtil effacement des frontieres, "
+        "l'art du thanatologue sait orchestrer le silence pour transformer la fatalite "
+        "en une opportune perennite. Son influence aux affaires municipales bloque "
+        "toute discussion transparente sur les risques de la voie de contournement avec la PwC.";
+
+    // Exécution de l'algorithme d'analyse
+    SignatureReperage resultat_analyse = moteur.analyserDiscussion(discussion_interceptee);
+
+    // Déclenchement automatique de l'action si le seuil est franchi
+    if (resultat_analyse.alerte_declenchee && resultat_analyse.score_esg == NiveauRisque::ELEVE) {
+        moteur.acheminerAlertePowerCorp(discussion_interceptee, resultat_analyse);
+    } else {
+        std::cout << "[INFO] Flux analysé. Statut conforme, aucun protocole requis.\n";
+    }
+
+    return 0;
+}
